@@ -7,6 +7,8 @@
 
 import UIKit
 
+public typealias CollectionViewSupplementaryProvider = (_ collectionView: UICollectionView, _ indexPath: IndexPath) -> UICollectionReusableView
+
 public protocol CollectionItem {
     
     var cellClass: UICollectionViewCell.Type { get }
@@ -63,10 +65,31 @@ public extension CollectionSection {
 public struct AnyCollectionSection<ID: Hashable>: CollectionSection {
     public var id: ID
     public var items: [CollectionItem]
+    public var headerProvider: CollectionViewSupplementaryProvider?
+    public var footerProvider: CollectionViewSupplementaryProvider?
 
     public init(id: ID, items: [CollectionItem]) {
         self.id = id
         self.items = items
     }
-}
 
+    public init(
+        id: ID,
+        items: [CollectionItem],
+        headerProvider: CollectionViewSupplementaryProvider? = nil,
+        footerProvider: CollectionViewSupplementaryProvider? = nil
+    ) {
+        self.id = id
+        self.items = items
+        self.headerProvider = headerProvider
+        self.footerProvider = footerProvider
+    }
+
+    public func headerView(in collectionView: UICollectionView, at indexPath: IndexPath) -> UICollectionReusableView? {
+        return headerProvider?(collectionView, indexPath)
+    }
+
+    public func footerView(in collectionView: UICollectionView, at indexPath: IndexPath) -> UICollectionReusableView? {
+        return footerProvider?(collectionView, indexPath)
+    }
+}
